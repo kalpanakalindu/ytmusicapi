@@ -4,6 +4,7 @@ Deploy on Vercel as a Python serverless function (see README.md).
 """
 import os
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import HTTPException
 from ytmusicapi import YTMusic
 
 app = Flask(__name__)
@@ -29,6 +30,11 @@ def need(name):
 @app.errorhandler(ValueError)
 def bad_request(e):
     return jsonify(error=str(e)), 400
+
+
+@app.errorhandler(HTTPException)  # keep real status codes (404 stays 404)
+def http_error(e):
+    return jsonify(error=e.description), e.code
 
 
 @app.errorhandler(Exception)
